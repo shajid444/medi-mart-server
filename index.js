@@ -31,9 +31,31 @@ async function run() {
     // create a database for medicine collection
 
     const medicineCollection = client.db("mediMart").collection("medicine");
+    const cartCollection = client.db("mediMart").collection("cart");
+
+
 
     app.get('/medicine', async(req, res)=>{
         const result = await medicineCollection.find().toArray();
+        res.send(result);
+    })
+
+    // cart-----------------------------------------
+
+    app.get('/cart', async (req, res) => {
+        const cursor = cartCollection.find();
+
+        const result = await cursor.toArray();
+
+        res.send(result);
+
+    })
+
+
+    app.post('/cart', async (req, res) => {
+        const p = req.body;
+        console.log(p);
+        const result = await cartCollection.insertOne(p);
         res.send(result);
     })
 
