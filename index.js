@@ -27,6 +27,8 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    
+    // create a database for medicine collection
 
     const medicineCollection = client.db("mediMart").collection("medicine");
 
