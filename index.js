@@ -44,9 +44,9 @@ async function run() {
     // cart-----------------------------------------
 
     app.get('/cart', async (req, res) => {
-        // const email = req.query.email;
+        // const user = req.query;
         // // console.log(email);
-        // const query = {email: email};
+        // const query = {email: user.email};
         // console.log(query);
         const result = await cartCollection.find().toArray();
 
@@ -77,9 +77,17 @@ async function run() {
     // user related api 
 
     app.post('/user', async (req, res) => {
-        const p = req.body;
+        const user = req.body;
+
+        const query = { email: user.email }
+
+        const existingUser = await userCollection.findOne(query);
+
+        if(existingUser){
+            return res.send({ message: 'user already exists', insertId: null })
+        }
         // console.log(p);
-        const result = await userCollection.insertOne(p);
+        const result = await userCollection.insertOne(user);
         res.send(result);
     })
 
@@ -89,6 +97,16 @@ async function run() {
         const result = await userCollection.find().toArray();
         res.send(result);
     })
+
+    app.delete('/user/:id', async (req, res) => {
+
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) }
+        const result = await userCollection.deleteOne(query);
+        res.send(result);
+
+    })
+
 
 
 
