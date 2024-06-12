@@ -11,7 +11,7 @@ app.use(express.json());
 
 // --------------------------------
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.3wo76be.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -32,6 +32,7 @@ async function run() {
 
     const medicineCollection = client.db("mediMart").collection("medicine");
     const cartCollection = client.db("mediMart").collection("cart");
+    const userCollection = client.db("mediMart").collection("user");
 
 
 
@@ -72,6 +73,23 @@ async function run() {
         res.send(result);
 
     })
+
+    // user related api 
+
+    app.post('/user', async (req, res) => {
+        const p = req.body;
+        // console.log(p);
+        const result = await userCollection.insertOne(p);
+        res.send(result);
+    })
+
+
+    
+    app.get('/user', async(req, res)=>{
+        const result = await userCollection.find().toArray();
+        res.send(result);
+    })
+
 
 
 
