@@ -3,6 +3,9 @@ const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const port = process.env.PORT || 5000;
 
 
@@ -35,6 +38,8 @@ async function run() {
         const cartCollection = client.db("mediMart").collection("cart");
         const userCollection = client.db("mediMart").collection("user");
         const bannerCollection = client.db("mediMart").collection("banner");
+        const paymentCollection = client.db("mediMart").collection("payments");
+
 
         // job related api
         app.post('/jwt', async (req, res) => {
@@ -253,7 +258,52 @@ async function run() {
 
         // -------------------------------------------------------------------
 
+// payment related api-----------------------------------------------------------
 
+app.post('/create-payment-intent', async (req, res) =>{
+
+    const {price} = req.body;
+    const amount = parseInt(price * 100);
+
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+    });
+
+    res.send({
+        clientSecret: paymentIntent.client_secret
+    })
+})
+
+app.get('/payments', async(req, res)=> {
+
+    const result = await paymentCollection.find().toArray();
+    res.send(result);
+})
+
+
+app.post('/payments', async(req, res) => {
+
+    const payment = req.body;
+    const paymentResult = await paymentCollection.insertOne(payment);
+    // carefully delete each item from the cart
+    console.log('payment info', payment);
+
+    const query = {_id: {
+
+        $in: payment.cartId.map(id => new ObjectId(id))
+    }};
+    
+    const deleteResult = await cartCollection.deleteMany(query);
+    res.send({paymentResult, deleteResult});
+})
+
+
+
+
+
+// --------------------------------------------------------------------------------
 
 
 
