@@ -192,25 +192,25 @@ async function run() {
             res.send(result);
         })
 
-        // app.get('/user/admin/:email',  async(req, res) =>{
+        app.get('/user/admin/:email', async(req, res) =>{
 
-        //     const email = req.params.email;
-        //     if(email !== req.decoded.email){
-        //         return res.status(403).send({message: 'forbidden access'})
-        //     }
+            const email = req.params.email;
+            // if(email !== req.decoded.email){
+            //     return res.status(403).send({message: 'forbidden access'})
+            // }
 
-        //     const query = {email: email};
-        //     const user = await userCollection.findOne(query);
-        //     let admin = false;
-        //     if(user) {
-        //         admin = user?.role === "admin";
-        //     }
+            const query = {email: email};
+            const user = await userCollection.findOne(query);
+            let admin = false;
+            if(user) {
+                admin = user?.role === "admin";
+            }
 
-        //     res.send({admin});
+            res.send({admin});
 
 
 
-        // })
+        })
 
         app.patch('/user/admin/:id', async (req, res) => {
 
@@ -276,9 +276,11 @@ app.post('/create-payment-intent', async (req, res) =>{
     })
 })
 
-app.get('/payments', async(req, res)=> {
+app.get('/payments/:email', async(req, res)=> {
 
-    const result = await paymentCollection.find().toArray();
+    const query = { email: req.params.email }
+
+    const result = await paymentCollection.find(query).toArray();
     res.send(result);
 })
 
